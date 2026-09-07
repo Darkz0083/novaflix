@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOVAFLIX — Anime, Shows & Movies</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{--red:#E50914;--bg:#141414;--card:#1f1f1f}
+  body{background:var(--bg);color:#fff;font-family:Inter,Helvetica,Arial,sans-serif;overflow-x:hidden}
+  /* NAV */
+  nav{position:fixed;top:0;width:100%;z-index:100;display:flex;align-items:center;gap:28px;padding:14px 4%;background:linear-gradient(180deg,rgba(0,0,0,.9),transparent);transition:.4s}
+  nav.scrolled{background:#141414}
+  .logo{color:var(--red);font-weight:900;font-size:30px;letter-spacing:-1px;cursor:pointer}
+  .links{display:flex;gap:18px;font-size:14px;color:#e5e5e5}
+  .links span{cursor:pointer;color:#b3b3b3}.links span.active,.links span:hover{color:#fff}
+  .nav-right{margin-left:auto;display:flex;align-items:center;gap:18px}
+  .search-box{background:rgba(0,0,0,.7);border:1px solid #aaa;display:flex;align-items:center;padding:6px 10px;gap:8px}
+  .search-box input{background:transparent;border:none;outline:none;color:#fff;width:220px}
+  /* HERO */
+  #hero{position:relative;height:92vh;display:flex;align-items:center;padding:0 4%;overflow:hidden}
+  #hero-bg{position:absolute;inset:0;background-size:cover;background-position:center top;transition:background-image 1s ease}
+  #hero-grad{position:absolute;inset:0;background:linear-gradient(90deg,rgba(20,20,20,.95) 25%,transparent 60%),linear-gradient(0deg,var(--bg) 5%,transparent 40%)}
+  #hero-content{position:relative;z-index:2;max-width:620px}
+  #hero-kicker{font-weight:700;letter-spacing:4px;font-size:13px;color:#ddd;margin-bottom:10px}
+  #hero-title{font-size:64px;font-weight:900;line-height:.95;margin-bottom:14px;text-shadow:2px 2px 10px #000}
+  #hero-meta{display:flex;gap:10px;align-items:center;margin-bottom:12px;font-size:15px}
+  .match{color:#46d369;font-weight:700}.mat{border:1px solid #888;padding:1px 7px;font-size:12px}
+  #hero-desc{color:#ddd;line-height:1.5;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:20px}
+  .btn{padding:11px 28px;border:none;border-radius:4px;font-weight:800;font-size:16px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+  .btn-play{background:#fff;color:#000}.btn-play:hover{background:rgba(255,255,255,.8)}
+  .btn-more{background:rgba(109,109,110,.7);color:#fff;margin-left:10px}.btn-more:hover{background:rgba(109,109,110,.4)}
+  /* ROWS */
+  #rows{margin-top:-140px;position:relative;z-index:5;padding-bottom:60px}
+  .row{margin:26px 0;padding-left:4%}
+  .row h2{font-size:20px;font-weight:700;margin-bottom:10px;color:#e5e5e5}
+  .row h2 span{font-size:12px;color:#54b9c5;margin-left:10px}
+  .rail{display:flex;gap:8px;overflow-x:auto;scroll-behavior:smooth;padding:10px 4% 20px 0;scrollbar-width:none}
+  .rail::-webkit-scrollbar{display:none}
+  .card{flex:0 0 170px;height:250px;border-radius:6px;overflow:hidden;background:var(--card);cursor:pointer;position:relative;transition:transform .35s cubic-bezier(.2,.7,.3,1.4),box-shadow .3s}
+  .card img{width:100%;height:100%;object-fit:cover}
+  .card:hover{transform:scale(1.35);z-index:20;box-shadow:0 20px 50px #000}
+  .card .badge{position:absolute;top:6px;left:6px;background:var(--red);font-size:11px;font-weight:800;padding:2px 6px;border-radius:3px}
+  .card .coming{position:absolute;bottom:0;width:100%;background:linear-gradient(transparent,#000);padding:22px 8px 8px;font-size:12px;font-weight:700}
+  .top10-card{flex:0 0 240px;display:flex;align-items:end}
+  .big-num{font-size:160px;font-weight:900;line-height:.8;color:#141414;-webkit-text-stroke:4px #595959;margin-right:-18px}
+  /* SEARCH GRID */
+  #searchView{display:none;padding:100px 4% 40px;min-height:100vh}
+  #grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;margin-top:20px}
+  .filter-bar{display:flex;gap:8px;margin-top:14px}
+  .pill{border:1px solid #555;border-radius:20px;padding:6px 16px;font-size:13px;cursor:pointer;color:#ccc}
+  .pill.active{background:#fff;color:#000;font-weight:800}
+  /* MODAL */
+  #modal{position:fixed;inset:0;z-index:200;display:none;align-items:start;justify-content:center;overflow-y:auto;background:rgba(0,0,0,.7);padding:30px 0}
+  #modal-box{width:min(880px,94vw);background:#181818;border-radius:10px;overflow:hidden;animation:pop .3s ease}
+  @keyframes pop{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
+  #modal-hero{position:relative;height:480px;background-size:cover;background-position:center}
+  #modal-grad{position:absolute;inset:0;background:linear-gradient(0deg,#181818 5%,transparent 50%)}
+  #modal-close{position:absolute;top:14px;right:14px;background:#181818;border:none;color:#fff;font-size:20px;width:36px;height:36px;border-radius:50%;cursor:pointer}
+  #modal-body{padding:20px 36px 36px}
+  #trailerWrap{margin:16px 0;border-radius:8px;overflow:hidden;background:#000}
+  #trailerWrap iframe{width:100%;height:460px;border:none}
+  .meta-row{display:flex;gap:12px;align-items:center;margin:10px 0}
+  .cast{color:#777;font-size:13px;margin-top:10px}.cast b{color:#999;font-weight:400}
+  .list-btn{border:1px solid #888;background:transparent;color:#fff;width:42px;height:42px;border-radius:50%;font-size:20px;cursor:pointer}
+  .skeleton{flex:0 0 170px;height:250px;border-radius:6px;background:linear-gradient(90deg,#222 25%,#333 50%,#222 75%);background-size:200% 100%;animation:sh 1.2s infinite}
+  @keyframes sh{to{background-position:-200% 0}}
+  footer{padding:40px 4%;color:#777;font-size:13px}
+  @media(max-width:700px){#hero-title{font-size:38px}.card{flex:0 0 130px;height:190px}#trailerWrap iframe{height:240px}}
+</style>
+</head>
+<body>
+<nav id="nav">
+  <div class="logo" onclick="goHome()">NOVAFLIX</div>
+  <div class="links">
+    <span class="active" onclick="goHome()">Home</span>
+    <span onclick="filterHome('tv')">Shows</span>
+    <span onclick="filterHome('movie')">Movies</span>
+    <span onclick="filterHome('anime')">Anime</span>
+    <span onclick="showUpcoming()">New & Popular</span>
+    <span onclick="showMyList()">My List</span>
+  </div>
+  <div class="nav-right">
+    <div class="search-box">🔍 <input id="q" placeholder="Titles, anime, shows..." oninput="onSearch(this.value)"></div>
+  </div>
+</nav>
+
+<div id="homeView">
+  <section id="hero">
+    <div id="hero-bg"></div><div id="hero-grad"></div>
+    <div id="hero-content">
+      <div id="hero-kicker">N O V A F L I X &nbsp; O R I G I N A L</div>
+      <h1 id="hero-title">Loading...</h1>
+      <div id="hero-meta"></div>
+      <p id="hero-desc"></p>
+      <div><button class="btn btn-play" onclick="playHero()">▶ Play Trailer</button><button class="btn btn-more" onclick="infoHero()">ⓘ More Info</button></div>
+    </div>
+  </section>
+  <div id="rows"></div>
+</div>
+
+<div id="searchView">
+  <h1 id="searchTitle">Search results</h1>
+  <div class="filter-bar" id="filters">
+    <div class="pill active" data-f="all" onclick="setFilter('all')">All</div>
+    <div class="pill" data-f="anime" onclick="setFilter('anime')">Anime</div>
+    <div class="pill" data-f="tv" onclick="setFilter('tv')">Shows</div>
+    <div class="pill" data-f="movie" onclick="setFilter('movie')">Movies</div>
+    <div class="pill" data-f="upcoming" onclick="setFilter('upcoming')">Unreleased</div>
+  </div>
+  <div id="grid"></div>
+</div>
+
+<div id="modal" onclick="if(event.target.id==='modal')closeModal()">
+  <div id="modal-box">
+    <div id="modal-hero"><div id="modal-grad"></div><button id="modal-close" onclick="closeModal()">✕</button></div>
+    <div id="modal-body">
+      <h1 id="m-title"></h1>
+      <div class="meta-row" id="m-meta"></div>
+      <div><button class="btn btn-play" onclick="playCurrent()">▶ Trailer</button> <button class="list-btn" id="m-list" onclick="toggleCurrent()">+</button></div>
+      <div id="trailerWrap" style="display:none"></div>
+      <p id="m-desc" style="margin-top:14px;line-height:1.6;color:#ddd"></p>
+      <div class="cast" id="m-cast"></div>
+      <h3 style="margin-top:20px">More Like This</h3>
+      <div class="rail" id="m-sim"></div>
+    </div>
+  </div>
+</div>
+
+<footer>Built with Jikan + TVMaze + TMDB + YouTube embeds. No streaming hosted — catalog + trailers only. Press <b>/</b> to search, <b>ESC</b> to close.</footer>
+
+<script>
+const TMDB_KEY = ""; // <-- optional: paste free TMDB v3 key for movies + posters
+const TMDB_IMG = "https://image.tmdb.org/t/p/w500";
+let HERO_LIST = [], ALL_CACHE = [], currentFilter="all", currentItem=null, myCache={};
+
+const $ = id => document.getElementById(id);
+window.addEventListener('scroll',()=>{ $('nav').classList.toggle('scrolled', scrollY>20) });
+document.addEventListener('keydown',e=>{ if(e.key==='/'){e.preventDefault();$('q').focus()} if(e.key==='Escape')closeModal() });
+
+function ytSearchEmbed(title){ return `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(title+" official trailer")}`; }
+function getMyList(){ try{return JSON.parse(localStorage.getItem('novaflix-list')||'[]')}catch{return[]} }
+function inMyList(id){ return getMyList().some(x=>x.id===id) }
+
+async function init(){ loadHome(); }
+async function loadHome(){
+  $('homeView').style.display='block'; $('searchView').style.display='none';
+  $('rows').innerHTML = `<div class="row"><h2>Loading...</h2><div class="rail">${'<div class="skeleton"></div>'.repeat(8)}</div></div>`.repeat(3);
+  const [topAnime, upcomingAnime, shows] = await Promise.all([fetchAnimeTop(), fetchAnimeUpcoming(), fetchShows("stranger")]);
+  let upcomingMovies=[], trendingMovies=[];
+  if(TMDB_KEY){ trendingMovies = await fetchTMDB('/trending/all/week'); upcomingMovies = await fetchTMDB('/movie/upcoming'); }
+  // build unified
+  const animeCards = topAnime.map(a=>animeToCard(a));
+  const upcomingCards = upcomingAnime.map(a=>animeToCard(a,true)).concat(upcomingMovies.map(m=>tmdbToCard(m,true)));
+  const showCards = shows.map(s=>tvToCard(s));
+  const movieCards = trendingMovies.map(m=>tmdbToCard(m));
+
+  HERO_LIST = [...animeCards.slice(0,5), ...showCards.slice(0,5), ...movieCards.slice(0,3)];
+  ALL_CACHE = [...animeCards, ...upcomingCards, ...showCards, ...movieCards];
+  renderHero(0); let hi=1; setInterval(()=>{ if(!$('homeView').offsetParent) return; renderHero(hi%HERO_LIST.length); hi++; }, 9000);
+
+  let html="";
+  html+=renderRow("Trending Now", [...animeCards.slice(0,10), ...showCards]);
+  html+=renderTop10("Top 10 This Week", HERO_LIST.slice(0,10));
+  html+=renderRow("Top Anime • Dub & Sub", animeCards);
+  html+=renderRow("Binge-Worthy Shows", showCards);
+  if(movieCards.length) html+=renderRow("Popular Movies", movieCards);
+  html+=renderRow("Coming Soon • Unreleased + Trailers 🍿", upcomingCards, true);
+  html+=renderRow("My List", getMyList(), true);
+  $('rows').innerHTML = html;
+}
+
+// --- FETCHERS ---
+async function fetchAnimeTop(){
+  try{ const r=await fetch('https://api.jikan.moe/v4/top/anime?limit=18'); const j=await r.json(); return j.data||[] }catch{return[]}
+}
+async function fetchAnimeUpcoming(){
+  try{ const r=await fetch('https://api.jikan.moe/v4/seasons/upcoming?limit=18'); const j=await r.json(); return j.data||[] }catch{return[]}
+}
+async function fetchShows(q){
+  try{ const r=await fetch(`https://api.tvmaze.com/search/shows?q=${encodeURIComponent(q||'breaking')}`); const j=await r.json(); return j.map(x=>x.show).slice(0,18) }catch{return[]}
+}
+async function fetchTMDB(path){
+  try{ const r=await fetch(`https://api.themoviedb.org/3${path}?api_key=${TMDB_KEY}&language=en-US&page=1`); const j=await r.json(); return j.results||[] }catch{return[]}
+}
+async function fetchTMDBVideos(id, type='movie'){
+  if(!TMDB_KEY) return null;
+  try{ const r=await fetch(`https://api.themoviedb.org/3/${type}/${id}/videos?api_key=${TMDB_KEY}`); const j=await r.json();
+    const v=(j.results||[]).find(v=>v.site==='YouTube'&&v.type==='Trailer')||(j.results||[])[0]; return v?`https://www.youtube.com/embed/${v.key}`:null }catch{return null}
+}
+
+// --- NORMALIZERS ---
+function animeToCard(a, isUp=false){
+  const title=a.title_english||a.title;
+  const img=a.images?.jpg?.large_image_url||a.images?.jpg?.image_url;
+  const yt=a.trailer?.youtube_id?`https://www.youtube.com/embed/${a.trailer.youtube_id}`:ytSearchEmbed(title);
+  const date=a.aired?.from?a.aired.from.slice(0,10):"TBA";
+  return {id:'mal-'+a.mal_id, kind:a.type==='Movie'?'movie':'anime', title, img, desc:a.synopsis||'No synopsis yet.', score:a.score||8.2, year:(a.aired?.prop?.from?.year||new Date().getFullYear()), genres:(a.genres||[]).map(g=>g.name), trailer:yt, release:date, upcoming:isUp||a.status==='Not yet aired', raw:a};
+}
+function tvToCard(s){
+  return {id:'tv-'+s.id, kind:'tv', title:s.name, img:s.image?.original||s.image?.medium, desc:(s.summary||'').replace(/<[^>]+>/g,''), score:s.rating?.average||8.0, year:s.premiered?s.premiered.slice(0,4):'2024', genres:s.genres||[], trailer:ytSearchEmbed(s.name), release:s.premiered||'TBA', upcoming:false, raw:s};
+}
+function tmdbToCard(m, isUp=false){
+  const isTV=!!m.first_air_date&&!m.title;
+  return {id:'tmdb-'+m.id, kind:isTV?'tv':'movie', title:m.title||m.name, img:m.poster_path?TMDB_IMG+m.poster_path:null, desc:m.overview, score:m.vote_average||7.8, year:(m.release_date||m.first_air_date||'2025').slice(0,4), genres:[], trailer:null, tmdbId:m.id, tmdbType:isTV?'tv':'movie', release:m.release_date||m.first_air_date||'TBA', upcoming:isUp||new Date(m.release_date)>new Date(), raw:m};
+}
+
+// --- RENDER ---
+function renderHero(i){
+  const c=HERO_LIST[i]; if(!c) return;
+  $('hero-bg').style.backgroundImage=`url('${c.img}')`;
+  $('hero-title').textContent=c.title;
+  $('hero-desc').textContent=c.desc||'';
+  $('hero-meta').innerHTML=`<span class="match">${Math.round(c.score*10)}% Match</span><span>${c.year}</span><span class="mat">HD</span><span class="mat">16+</span><span>${c.kind.toUpperCase()}</span>`;
+  $('hero-bg').dataset.idx=i;
+}
+function playHero(){ const c=HERO_LIST[$('hero-bg').dataset.idx||0]; if(c) openModal(c, true); }
+function infoHero(){ const c=HERO_LIST[$('hero-bg').dataset.idx||0]; if(c) openModal(c,false); }
+
+function renderRow(title, items, isWide=false){
+  if(!items.length) return '';
+  const cards=items.map((c,i)=>`<div class="card" onclick='openById("${c.id}")'><img loading="lazy" src="${c.img||'https://picsum.photos/seed/'+c.id+'/300/450'}" onerror="this.src='https://picsum.photos/seed/${c.id}/300/450'">${c.upcoming?`<div class="badge">SOON</div><div class="coming">${c.release} • ▶ Trailer</div>`:''}</div>`).join('');
+  items.forEach(c=>myCache[c.id]=c);
+  return `<div class="row"><h2>${title}</h2><div class="rail">${cards}</div></div>`;
+}
+function renderTop10(title, items){
+  items.forEach(c=>myCache[c.id]=c);
+  const cards=items.map((c,i)=>`<div class="top10-card" onclick='openById("${c.id}")'><div class="big-num">${i+1}</div><div class="card"><img loading="lazy" src="${c.img||'https://picsum.photos/seed/'+c.id+'/300/450'}"></div></div>`).join('');
+  return `<div class="row"><h2>${title} <span>TOP 10</span></h2><div class="rail">${cards}</div></div>`;
+}
+function openById(id){ const c=myCache[id]; if(c) openModal(c,false); }
+
+// --- SEARCH (every anime/show/movie) ---
+let deb=null;
+function onSearch(v){
+  clearTimeout(deb);
+  if(!v.trim()){ goHome(); return; }
+  deb=setTimeout(()=>doSearch(v.trim()), 400);
+}
+async function doSearch(q){
+  $('homeView').style.display='none'; $('searchView').style.display='block';
+  $('searchTitle').textContent=`Results for "${q}"`;
+  $('grid').innerHTML='<div class="skeleton"></div>'.repeat(10);
+  const [jikan, tv] = await Promise.all([
+    fetch(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(q)}&limit=12`).then(r=>r.json()).then(j=>j.data||[]).catch(()=>[]),
+    fetch(`https://api.tvmaze.com/search/shows?q=${encodeURIComponent(q)}`).then(r=>r.json()).then(j=>j.map(x=>x.show)).catch(()=>[])
+  ]);
+  let tmdb=[];
+  if(TMDB_KEY){ try{ const r=await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_KEY}&query=${encodeURIComponent(q)}`); tmdb=(await r.json()).results||[] }catch{} }
+  let merged=[...jikan.map(a=>animeToCard(a)), ...tv.map(s=>tvToCard(s)), ...tmdb.map(m=>tmdbToCard(m))];
+  // upcoming filter boost: also fetch upcoming anime matching
+  if(currentFilter==='upcoming') merged=merged.filter(c=>c.upcoming||c.title.toLowerCase().includes(q.toLowerCase()));
+  if(currentFilter!=='all'&&currentFilter!=='upcoming') merged=merged.filter(c=>c.kind===currentFilter);
+  merged.forEach(c=>myCache[c.id]=c);
+  ALL_CACHE=merged;
+  $('grid').innerHTML = merged.length? merged.map(c=>`<div class="card" style="flex:none;height:270px" onclick='openById("${c.id}")'><img src="${c.img||'https://picsum.photos/seed/'+c.id+'/300/450'}"><div class="coming">${c.title.slice(0,28)}<br>★ ${c.score} • ${c.year}</div></div>`).join('') : `<p style="color:#888">No results. Try anime name, show, or add TMDB key for movies.</p>`;
+}
+function setFilter(f){ currentFilter=f; document.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active',p.dataset.f===f)); const q=$('q').value; if(q) doSearch(q); }
+function goHome(){ $('q').value=''; $('homeView').style.display='block'; $('searchView').style.display='none'; }
+function filterHome(kind){ goHome(); document.querySelector('#rows').scrollIntoView({behavior:'smooth'}); }
+function showUpcoming(){ goHome(); setTimeout(()=>{ [...document.querySelectorAll('.row')].find(r=>r.textContent.includes('Coming Soon'))?.scrollIntoView({behavior:'smooth',block:'center'}) },300); }
+function showMyList(){
+  $('homeView').style.display='none'; $('searchView').style.display='block';
+  $('searchTitle').textContent='My List'; const l=getMyList(); l.forEach(c=>myCache[c.id]=c);
+  $('grid').innerHTML=l.length?l.map(c=>`<div class="card" style="flex:none;height:270px" onclick='openById("${c.id}")'><img src="${c.img}"></div>`).join(''):'<p style="color:#888">Empty. Hover any title → + My List.</p>';
+}
+
+// --- MODAL + TRAILERS ---
+async function openModal(c, autoplay=true){
+  currentItem=c;
+  $('modal').style.display='flex'; document.body.style.overflow='hidden';
+  $('modal-hero').style.backgroundImage=`url('${c.img}')`;
+  $('m-title').textContent=c.title;
+  let days=''; if(c.upcoming&&c.release!=='TBA'){ const d=Math.ceil((new Date(c.release)-new Date())/86400000); if(d>0) days=` • COMING IN ${d} DAYS`; }
+  $('m-meta').innerHTML=`<span class="match">${Math.round(c.score*10)}% Match</span><span>${c.year}</span><span class="mat">4K</span><span>${c.release}${days}</span><span>${(c.genres||[]).slice(0,3).join(' • ')}</span>`;
+  $('m-desc').textContent=c.desc||'';
+  $('m-cast').innerHTML=`<b>Genres:</b> ${(c.genres||[]).join(', ')||'Drama, Action'} &nbsp; <b>Type:</b> ${c.kind}`;
+  $('m-list').textContent=inMyList(c.id)?'✓':'+';
+  $('trailerWrap').style.display='none'; $('trailerWrap').innerHTML='';
+  // similars
+  $('m-sim').innerHTML=ALL_CACHE.filter(x=>x.id!==c.id&&x.kind===c.kind).slice(0,10).map(x=>`<div class="card" style="flex:0 0 130px;height:190px" onclick='openById("${x.id}")'><img src="${x.img}"></div>`).join('');
+  if(autoplay) playCurrent();
+}
+async function playCurrent(){
+  const c=currentItem; if(!c) return;
+  let url=c.trailer;
+  if(!url||c.tmdbId){ const tm=await fetchTMDBVideos(c.tmdbId||0, c.tmdbType||'movie'); if(tm) url=tm; if(!url) url=ytSearchEmbed(c.title); }
+  $('trailerWrap').style.display='block';
+  $('trailerWrap').innerHTML=`<iframe src="${url}?autoplay=1&rel=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+  $('trailerWrap').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function closeModal(){ $('modal').style.display='none'; document.body.style.overflow='auto'; $('trailerWrap').innerHTML=''; }
+function toggleCurrent(){
+  let l=getMyList(); if(inMyList(currentItem.id)) l=l.filter(x=>x.id!==currentItem.id); else l.push(currentItem);
+  localStorage.setItem('novaflix-list', JSON.stringify(l)); $('m-list').textContent=inMyList(currentItem.id)?'✓':'+';
+}
+init();
+</script>
+</body>
+</html>
