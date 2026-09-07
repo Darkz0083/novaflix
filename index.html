@@ -3,298 +3,325 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NOVAFLIX — Anime, Shows & Movies</title>
+<title>NOVAFLIX — Watch Anime, Shows & Movies Catalog</title>
 <style>
-  *{margin:0;padding:0;box-sizing:border-box}
-  :root{--red:#E50914;--bg:#141414;--card:#1f1f1f}
-  body{background:var(--bg);color:#fff;font-family:Inter,Helvetica,Arial,sans-serif;overflow-x:hidden}
-  /* NAV */
-  nav{position:fixed;top:0;width:100%;z-index:100;display:flex;align-items:center;gap:28px;padding:14px 4%;background:linear-gradient(180deg,rgba(0,0,0,.9),transparent);transition:.4s}
-  nav.scrolled{background:#141414}
-  .logo{color:var(--red);font-weight:900;font-size:30px;letter-spacing:-1px;cursor:pointer}
-  .links{display:flex;gap:18px;font-size:14px;color:#e5e5e5}
-  .links span{cursor:pointer;color:#b3b3b3}.links span.active,.links span:hover{color:#fff}
-  .nav-right{margin-left:auto;display:flex;align-items:center;gap:18px}
-  .search-box{background:rgba(0,0,0,.7);border:1px solid #aaa;display:flex;align-items:center;padding:6px 10px;gap:8px}
-  .search-box input{background:transparent;border:none;outline:none;color:#fff;width:220px}
-  /* HERO */
-  #hero{position:relative;height:92vh;display:flex;align-items:center;padding:0 4%;overflow:hidden}
-  #hero-bg{position:absolute;inset:0;background-size:cover;background-position:center top;transition:background-image 1s ease}
-  #hero-grad{position:absolute;inset:0;background:linear-gradient(90deg,rgba(20,20,20,.95) 25%,transparent 60%),linear-gradient(0deg,var(--bg) 5%,transparent 40%)}
-  #hero-content{position:relative;z-index:2;max-width:620px}
-  #hero-kicker{font-weight:700;letter-spacing:4px;font-size:13px;color:#ddd;margin-bottom:10px}
-  #hero-title{font-size:64px;font-weight:900;line-height:.95;margin-bottom:14px;text-shadow:2px 2px 10px #000}
-  #hero-meta{display:flex;gap:10px;align-items:center;margin-bottom:12px;font-size:15px}
-  .match{color:#46d369;font-weight:700}.mat{border:1px solid #888;padding:1px 7px;font-size:12px}
-  #hero-desc{color:#ddd;line-height:1.5;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:20px}
-  .btn{padding:11px 28px;border:none;border-radius:4px;font-weight:800;font-size:16px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
-  .btn-play{background:#fff;color:#000}.btn-play:hover{background:rgba(255,255,255,.8)}
-  .btn-more{background:rgba(109,109,110,.7);color:#fff;margin-left:10px}.btn-more:hover{background:rgba(109,109,110,.4)}
-  /* ROWS */
-  #rows{margin-top:-140px;position:relative;z-index:5;padding-bottom:60px}
-  .row{margin:26px 0;padding-left:4%}
-  .row h2{font-size:20px;font-weight:700;margin-bottom:10px;color:#e5e5e5}
-  .row h2 span{font-size:12px;color:#54b9c5;margin-left:10px}
-  .rail{display:flex;gap:8px;overflow-x:auto;scroll-behavior:smooth;padding:10px 4% 20px 0;scrollbar-width:none}
-  .rail::-webkit-scrollbar{display:none}
-  .card{flex:0 0 170px;height:250px;border-radius:6px;overflow:hidden;background:var(--card);cursor:pointer;position:relative;transition:transform .35s cubic-bezier(.2,.7,.3,1.4),box-shadow .3s}
-  .card img{width:100%;height:100%;object-fit:cover}
-  .card:hover{transform:scale(1.35);z-index:20;box-shadow:0 20px 50px #000}
-  .card .badge{position:absolute;top:6px;left:6px;background:var(--red);font-size:11px;font-weight:800;padding:2px 6px;border-radius:3px}
-  .card .coming{position:absolute;bottom:0;width:100%;background:linear-gradient(transparent,#000);padding:22px 8px 8px;font-size:12px;font-weight:700}
-  .top10-card{flex:0 0 240px;display:flex;align-items:end}
-  .big-num{font-size:160px;font-weight:900;line-height:.8;color:#141414;-webkit-text-stroke:4px #595959;margin-right:-18px}
-  /* SEARCH GRID */
-  #searchView{display:none;padding:100px 4% 40px;min-height:100vh}
-  #grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;margin-top:20px}
-  .filter-bar{display:flex;gap:8px;margin-top:14px}
-  .pill{border:1px solid #555;border-radius:20px;padding:6px 16px;font-size:13px;cursor:pointer;color:#ccc}
-  .pill.active{background:#fff;color:#000;font-weight:800}
-  /* MODAL */
-  #modal{position:fixed;inset:0;z-index:200;display:none;align-items:start;justify-content:center;overflow-y:auto;background:rgba(0,0,0,.7);padding:30px 0}
-  #modal-box{width:min(880px,94vw);background:#181818;border-radius:10px;overflow:hidden;animation:pop .3s ease}
-  @keyframes pop{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
-  #modal-hero{position:relative;height:480px;background-size:cover;background-position:center}
-  #modal-grad{position:absolute;inset:0;background:linear-gradient(0deg,#181818 5%,transparent 50%)}
-  #modal-close{position:absolute;top:14px;right:14px;background:#181818;border:none;color:#fff;font-size:20px;width:36px;height:36px;border-radius:50%;cursor:pointer}
-  #modal-body{padding:20px 36px 36px}
-  #trailerWrap{margin:16px 0;border-radius:8px;overflow:hidden;background:#000}
-  #trailerWrap iframe{width:100%;height:460px;border:none}
-  .meta-row{display:flex;gap:12px;align-items:center;margin:10px 0}
-  .cast{color:#777;font-size:13px;margin-top:10px}.cast b{color:#999;font-weight:400}
-  .list-btn{border:1px solid #888;background:transparent;color:#fff;width:42px;height:42px;border-radius:50%;font-size:20px;cursor:pointer}
-  .skeleton{flex:0 0 170px;height:250px;border-radius:6px;background:linear-gradient(90deg,#222 25%,#333 50%,#222 75%);background-size:200% 100%;animation:sh 1.2s infinite}
-  @keyframes sh{to{background-position:-200% 0}}
-  footer{padding:40px 4%;color:#777;font-size:13px}
-  @media(max-width:700px){#hero-title{font-size:38px}.card{flex:0 0 130px;height:190px}#trailerWrap iframe{height:240px}}
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--red:#E50914;--bg:#141414;--panel:#181818;--gray:#808080;--green:#46d369}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:#fff;font-family:"Netflix Sans","Helvetica Neue",Helvetica,Arial,sans-serif;overflow-x:hidden}
+a{color:var(--gray);text-decoration:none;font-size:13px}a:hover{text-decoration:underline}
+/* GATE */
+#gate{position:fixed;inset:0;background:#141414;z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px}
+#gate h1{font-size:52px;font-weight:500}
+#gateGrid{display:flex;gap:28px;flex-wrap:wrap;justify-content:center}
+.prof{width:150px;text-align:center;cursor:pointer}
+.prof .av{width:150px;height:150px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:64px;font-weight:900;border:3px solid transparent}
+.prof:hover .av{border-color:#fff}
+.prof p{margin-top:10px;color:#808080}.prof:hover p{color:#fff}
+#gate button{background:transparent;border:1px solid #808080;color:#808080;padding:10px 28px;letter-spacing:2px;cursor:pointer}
+#gate button:hover{color:#fff;border-color:#fff}
+/* NAV */
+nav{position:fixed;top:0;width:100%;z-index:100;display:flex;align-items:center;gap:26px;padding:14px 4%;background:linear-gradient(180deg,rgba(0,0,0,.85),transparent);transition:.4s}
+nav.scrolled{background:#141414}
+.logo{color:var(--red);font-weight:900;font-size:30px;letter-spacing:-1px;cursor:pointer;font-stretch:condensed}
+.links{display:flex;gap:18px;font-size:14px}
+.links span{cursor:pointer;color:#b3b3b3}.links span.active,.links span:hover{color:#fff}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:20px;position:relative}
+.searchWrap{display:flex;align-items:center;background:rgba(0,0,0,.75);border:1px solid #aaa;padding:6px 10px;gap:8px}
+.searchWrap input{background:transparent;border:none;outline:none;color:#fff;width:220px}
+.iconBtn{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;position:relative}
+#bellDot{position:absolute;top:-2px;right:-2px;background:var(--red);color:#fff;font-size:10px;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.drop{position:absolute;top:44px;right:0;width:340px;background:rgba(0,0,0,.95);border:1px solid #333;border-top:2px solid #fff;display:none;max-height:420px;overflow:auto}
+.drop.show{display:block}
+.dropItem{display:flex;gap:12px;padding:12px;border-bottom:1px solid #222}
+.dropItem img{width:90px;height:55px;object-fit:cover;border-radius:4px}
+.avatar{width:32px;height:32px;border-radius:4px;background:linear-gradient(135deg,#E50914,#7b00ff);display:flex;align-items:center;justify-content:center;font-weight:900;cursor:pointer}
+/* BILLBOARD */
+#homeView{display:block}
+#billboard{position:relative;height:96vh;overflow:hidden;display:flex;align-items:center}
+#billBg{position:absolute;inset:0;background-size:cover;background-position:center 20%;transition:background-image 1s ease;animation:ken 18s ease-in-out infinite alternate}
+@keyframes ken{from{transform:scale(1)}to{transform:scale(1.08)}}
+#billGrad{position:absolute;inset:0;background:linear-gradient(77deg,rgba(0,0,0,.85) 30%,transparent 65%),linear-gradient(0deg,var(--bg) 8%,transparent 45%)}
+#billContent{position:relative;z-index:2;padding:0 4%;max-width:640px}
+#billKicker{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:3px;margin-bottom:12px}
+#billKicker .n{color:var(--red);font-size:22px;font-weight:900}
+#billTitle{font-size:72px;font-weight:900;line-height:.9;margin-bottom:12px;text-shadow:2px 4px 12px #000}
+#topBadge{display:flex;align-items:center;gap:8px;font-weight:700;margin-bottom:12px}
+#topBadge .t10{background:var(--red);font-weight:900;padding:2px 6px;border-radius:3px;font-size:14px}
+#billMeta{display:flex;gap:10px;align-items:center;margin:12px 0;color:#ddd}
+.match{color:var(--green);font-weight:700}.mBox{border:1px solid #999;padding:1px 8px;font-size:13px}
+#billDesc{color:#e6e6e6;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:20px;text-shadow:1px 1px 4px #000}
+.btn{padding:12px 30px;border:none;border-radius:4px;font-weight:800;font-size:17px;cursor:pointer;display:inline-flex;align-items:center;gap:10px}
+.btn-play{background:#fff;color:#000}.btn-play:hover{background:rgba(255,255,255,.75)}
+.btn-more{background:rgba(109,109,110,.7);color:#fff;margin-left:12px}.btn-more:hover{background:rgba(109,109,110,.4)}
+#billSide{position:absolute;right:0;bottom:32%;display:flex;align-items:center;gap:14px;z-index:2}
+#billDots{position:absolute;right:4%;bottom:24%;display:flex;gap:6px;z-index:2}
+.dot{width:22px;height:3px;background:#4d4d4d;cursor:pointer}.dot.on{background:#fff}
+#matBox{background:rgba(0,0,0,.5);border-left:3px solid #fff;padding:8px 40px 8px 14px;font-size:14px}
+/* ROWS */
+#rows{margin-top:-160px;position:relative;z-index:5;padding-bottom:40px}
+.row{margin:28px 0;padding-left:4%;position:relative}
+.rowHead{display:flex;align-items:baseline;gap:12px;padding-right:4%}
+.rowHead h2{font-size:20px;font-weight:600;color:#e5e5e5;cursor:pointer}
+.rowHead .exp{font-size:13px;color:#54b9c5;opacity:0;transition:.3s;cursor:pointer}
+.row:hover .exp{opacity:1}
+.railWrap{position:relative}
+.rail{display:flex;gap:6px;overflow-x:auto;scroll-behavior:smooth;padding:12px 4% 18px 0;scrollbar-width:none}
+.rail::-webkit-scrollbar{display:none}
+.arrow{position:absolute;top:0;bottom:18px;width:4%;background:rgba(20,20,20,.7);border:none;color:#fff;font-size:32px;cursor:pointer;z-index:10;opacity:0}
+.row:hover .arrow{opacity:1}
+.arrow.left{left:-4%}.arrow.right{right:0}
+.card{flex:0 0 250px;height:142px;border-radius:4px;overflow:hidden;background:#222;cursor:pointer;position:relative;transition:transform .25s}
+.card img{width:100%;height:100%;object-fit:cover;object-position:center top}
+.card:hover{border-radius:6px}
+.card.port{flex:0 0 165px;height:240px}
+.card .prog{position:absolute;bottom:0;left:0;height:4px;background:var(--red)}
+.card .progBg{position:absolute;bottom:0;width:100%;height:4px;background:#555}
+.card .soon{position:absolute;bottom:0;width:100%;background:linear-gradient(transparent,#000);padding:20px 8px 8px;font-size:12px;font-weight:700}
+.card .badgeSoon{position:absolute;top:6px;left:6px;background:var(--red);font-size:11px;font-weight:800;padding:2px 6px;border-radius:3px}
+.topWrap{flex:0 0 280px;display:flex;align-items:flex-end;cursor:pointer}
+.bigN{font-size:210px;font-weight:900;line-height:.75;color:#141414;-webkit-text-stroke:5px #595959;margin-right:-22px;letter-spacing:-20px}
+.topWrap .card{flex:0 0 145px;height:210px}
+.skel{flex:0 0 250px;height:142px;border-radius:4px;background:linear-gradient(90deg,#222 25%,#333 50%,#222 75%);background-size:200% 100%;animation:sh 1.2s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+/* VIEWS */
+.pageView{display:none;padding:110px 4% 40px;min-height:80vh}
+#grid,#newGrid,#listGrid,#contGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin-top:18px}
+#grid .card,#newGrid .card,#listGrid .card{flex:none;width:100%}
+.pillBar{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.pill{border:1px solid #555;border-radius:20px;padding:6px 16px;font-size:13px;cursor:pointer;color:#ccc}
+.pill.on{background:#fff;color:#000;font-weight:800}
+.newCard{background:#1e1e1e;border-radius:8px;overflow:hidden}
+.newCard img{width:100%;height:150px;object-fit:cover}
+.newCard .pad{padding:12px}
+.remBtn{background:#222;border:1px solid #555;color:#fff;border-radius:20px;padding:6px 14px;cursor:pointer;margin-top:8px}
+.remBtn.on{background:#fff;color:#000}
+/* PREVIEW */
+#preview{position:absolute;z-index:300;width:340px;background:var(--panel);border-radius:8px;overflow:hidden;display:none;box-shadow:0 20px 60px #000;animation:pop .2s ease}
+@keyframes pop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+#preview img{width:100%;height:190px;object-fit:cover}
+#preview .pPad{padding:14px}
+.pBtns{display:flex;gap:8px;margin-bottom:10px}
+.circ{width:38px;height:38px;border-radius:50%;border:2px solid #888;background:transparent;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.circ.white{background:#fff;color:#000;border-color:#fff}
+.circ:hover{border-color:#fff}
+/* MODAL */
+#modal{position:fixed;inset:0;z-index:400;display:none;align-items:flex-start;justify-content:center;overflow-y:auto;background:rgba(0,0,0,.7);padding:28px 0}
+#modalBox{width:min(920px,95vw);background:var(--panel);border-radius:8px;overflow:hidden}
+#mHero{position:relative;height:510px;background-size:cover;background-position:center top}
+#mGrad{position:absolute;inset:0;background:linear-gradient(0deg,var(--panel) 8%,transparent 55%)}
+#mClose{position:absolute;top:14px;right:14px;background:#181818;border:none;color:#fff;font-size:20px;width:36px;height:36px;border-radius:50%;cursor:pointer}
+#mTitlePos{position:absolute;bottom:18px;left:40px;right:40px}
+#mTitlePos h1{font-size:48px;font-weight:900;text-shadow:2px 2px 8px #000}
+#mBody{padding:10px 44px 40px}
+.metaLine{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.tabs{display:flex;gap:22px;border-bottom:1px solid #333;margin:18px 0 14px;padding-bottom:10px}
+.tabs span{cursor:pointer;color:#aaa}.tabs span.on{color:#fff;font-weight:800;border-bottom:3px solid var(--red);padding-bottom:8px}
+.ep{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid #333;align-items:center}
+.ep img{width:140px;height:80px;object-fit:cover;border-radius:4px}
+.ep .num{font-size:22px;color:#aaa}
+.simGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.simGrid .sim{background:#2f2f2f;border-radius:6px;overflow:hidden;cursor:pointer}
+.simGrid img{width:100%;height:150px;object-fit:cover}
+.simGrid .pad{padding:10px;font-size:13px;color:#bbb}
+#trailerWrap{margin:16px 0;border-radius:8px;overflow:hidden;background:#000}
+#trailerWrap iframe{width:100%;height:480px;border:none}
+/* PLAYER */
+#player{position:fixed;inset:0;z-index:600;background:#000;display:none;flex-direction:column}
+#player iframe{flex:1;width:100%;border:none}
+#playerBar{display:flex;align-items:center;gap:16px;padding:14px 20px}
+/* FOOTER */
+footer{padding:40px 4% 30px;color:var(--gray);font-size:13px}
+.fGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}
+.svc{border:1px solid var(--gray);background:transparent;color:var(--gray);padding:7px 10px;font-size:13px;cursor:pointer;margin-top:10px}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#fff;color:#000;padding:10px 22px;border-radius:4px;font-weight:700;display:none;z-index:700}
+@media(max-width:800px){#billTitle{font-size:40px}.card{flex:0 0 170px;height:100px}.links{display:none}.searchWrap input{width:120px}#mBody{padding:10px 18px}#trailerWrap iframe{height:240px}.bigN{font-size:140px}}
 </style>
 </head>
 <body>
+<div id="gate">
+<h1>Who's watching?</h1>
+<div id="gateGrid"></div>
+<div style="display:flex;gap:12px"><button onclick="addProfile()">ADD PROFILE</button><button onclick="enterGuest()">BROWSE AS GUEST</button></div>
+</div>
+<div id="app" style="display:none">
 <nav id="nav">
-  <div class="logo" onclick="goHome()">NOVAFLIX</div>
-  <div class="links">
-    <span class="active" onclick="goHome()">Home</span>
-    <span onclick="filterHome('tv')">Shows</span>
-    <span onclick="filterHome('movie')">Movies</span>
-    <span onclick="filterHome('anime')">Anime</span>
-    <span onclick="showUpcoming()">New & Popular</span>
-    <span onclick="showMyList()">My List</span>
-  </div>
-  <div class="nav-right">
-    <div class="search-box">🔍 <input id="q" placeholder="Titles, anime, shows..." oninput="onSearch(this.value)"></div>
-  </div>
+<div class="logo" onclick="goHome()">NOVAFLIX</div>
+<div class="links">
+<span id="l-home" class="active" onclick="goHome()">Home</span>
+<span onclick="showTV()">Shows</span>
+<span onclick="showMovies()">Movies</span>
+<span onclick="showNewView()">New & Popular</span>
+<span onclick="showListView()">My List</span>
+<span onclick="showBrowse()">Browse by Languages</span>
+</div>
+<div class="nav-right">
+<div class="searchWrap">🔍 <input id="q" placeholder="Titles, anime, shows..." oninput="onSearch(this.value)"></div>
+<button class="iconBtn" onclick="toggleBell(event)">🔔<span id="bellDot">5</span></button>
+<div class="avatar" id="myAv" onclick="toggleProf(event)">Y</div>
+<div class="drop" id="bellDrop"></div>
+<div class="drop" id="profDrop"></div>
+</div>
 </nav>
-
 <div id="homeView">
-  <section id="hero">
-    <div id="hero-bg"></div><div id="hero-grad"></div>
-    <div id="hero-content">
-      <div id="hero-kicker">N O V A F L I X &nbsp; O R I G I N A L</div>
-      <h1 id="hero-title">Loading...</h1>
-      <div id="hero-meta"></div>
-      <p id="hero-desc"></p>
-      <div><button class="btn btn-play" onclick="playHero()">▶ Play Trailer</button><button class="btn btn-more" onclick="infoHero()">ⓘ More Info</button></div>
-    </div>
-  </section>
-  <div id="rows"></div>
+<section id="billboard"><div id="billBg"></div><div id="billGrad"></div>
+<div id="billContent">
+<div id="billKicker"><span class="n">N</span> SERIES</div>
+<h1 id="billTitle">Loading...</h1>
+<div id="topBadge"><span class="t10">TOP 10</span><span id="topText">#1 in Shows Today</span></div>
+<div id="billMeta"></div>
+<p id="billDesc"></p>
+<div><button class="btn btn-play" onclick="playBill()">▶ Play</button><button class="btn btn-more" onclick="infoBill()">ⓘ More Info</button></div>
 </div>
-
-<div id="searchView">
-  <h1 id="searchTitle">Search results</h1>
-  <div class="filter-bar" id="filters">
-    <div class="pill active" data-f="all" onclick="setFilter('all')">All</div>
-    <div class="pill" data-f="anime" onclick="setFilter('anime')">Anime</div>
-    <div class="pill" data-f="tv" onclick="setFilter('tv')">Shows</div>
-    <div class="pill" data-f="movie" onclick="setFilter('movie')">Movies</div>
-    <div class="pill" data-f="upcoming" onclick="setFilter('upcoming')">Unreleased</div>
-  </div>
-  <div id="grid"></div>
+<div id="billSide"><div id="billDots"></div><div id="matBox">TV-MA</div></div>
+</section>
+<div id="rows"></div>
 </div>
-
-<div id="modal" onclick="if(event.target.id==='modal')closeModal()">
-  <div id="modal-box">
-    <div id="modal-hero"><div id="modal-grad"></div><button id="modal-close" onclick="closeModal()">✕</button></div>
-    <div id="modal-body">
-      <h1 id="m-title"></h1>
-      <div class="meta-row" id="m-meta"></div>
-      <div><button class="btn btn-play" onclick="playCurrent()">▶ Trailer</button> <button class="list-btn" id="m-list" onclick="toggleCurrent()">+</button></div>
-      <div id="trailerWrap" style="display:none"></div>
-      <p id="m-desc" style="margin-top:14px;line-height:1.6;color:#ddd"></p>
-      <div class="cast" id="m-cast"></div>
-      <h3 style="margin-top:20px">More Like This</h3>
-      <div class="rail" id="m-sim"></div>
-    </div>
-  </div>
+<div id="searchView" class="pageView"><h1 id="searchTitle">Search</h1><div class="pillBar" id="pillBar">
+<div class="pill on" onclick="setFilter('all',this)">All</div><div class="pill" onclick="setFilter('anime',this)">Anime</div><div class="pill" onclick="setFilter('tv',this)">Shows</div><div class="pill" onclick="setFilter('movie',this)">Movies</div><div class="pill" onclick="setFilter('upcoming',this)">Unreleased</div>
+</div><div id="grid"></div></div>
+<div id="newView" class="pageView"><h1>New & Popular</h1><p style="color:#aaa;margin-top:6px">Coming soon with trailers + Remind Me. No streaming hosted.</p><div id="newGrid"></div></div>
+<div id="listView" class="pageView"><h1>My List</h1><h3 style="margin:18px 0 8px;color:#ddd">Continue Watching</h3><div id="contGrid"></div><h3 style="margin:18px 0 8px;color:#ddd">Saved</h3><div id="listGrid"></div></div>
+<div id="browseView" class="pageView"><h1>Browse by Languages</h1><div class="pillBar"><div class="pill on">English</div><div class="pill">Japanese • Anime</div><div class="pill">Korean</div></div><div id="browseGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin-top:18px"></div></div>
+<footer><div>Questions? Call 1-844-505-2993</div><div class="fGrid"><div><a href="#">Audio Description</a><br><a href="#">Investor Relations</a><br><a href="#">Legal Notices</a></div><div><a href="#">Help Center</a><br><a href="#">Jobs</a><br><a href="#">Cookie Preferences</a></div><div><a href="#">Gift Cards</a><br><a href="#">Terms of Use</a><br><a href="#">Corporate Info</a></div><div><a href="#">Media Center</a><br><a href="#">Privacy</a><br><a href="#">Contact Us</a></div></div><button class="svc">Service Code</button><div style="margin-top:12px">© 1997-2026 Novaflix Catalog — Trailers via YouTube. Data: Jikan + TVMaze + TMDB.</div></footer>
 </div>
-
-<footer>Built with Jikan + TVMaze + TMDB + YouTube embeds. No streaming hosted — catalog + trailers only. Press <b>/</b> to search, <b>ESC</b> to close.</footer>
-
+<div id="preview"><img id="pImg"><div class="pPad"><div class="pBtns"><button class="circ white" id="pPlay" onclick="playCurrent()">▶</button><button class="circ" id="pList" onclick="toggleCurrent()">+</button><button class="circ" onclick="likeCurrent()">👍</button><span style="margin-left:auto"></span><button class="circ" onclick="openCurrent()">∨</button></div><div id="pMeta" style="font-size:14px"></div><div id="pGenres" style="font-size:13px;color:#aaa;margin-top:6px"></div></div></div>
+<div id="modal" onclick="if(event.target.id==='modal')closeModal()"><div id="modalBox"><div id="mHero"><div id="mGrad"></div><button id="mClose" onclick="closeModal()">✕</button><div id="mTitlePos"><h1 id="mTitle"></h1><div style="margin-top:14px"><button class="btn btn-play" onclick="playCurrent()">▶ Play Trailer</button> <button class="circ" id="mListBtn" onclick="toggleCurrent()">+</button> <button class="circ" onclick="likeCurrent()">👍</button> <button class="circ" id="mBell" onclick="toggleRemind()">🔔</button></div></div></div><div id="mBody"><div class="metaLine" id="mMeta"></div><p id="mDesc" style="line-height:1.6;color:#ddd"></p><div id="mCast" style="color:#777;font-size:13px;margin-top:10px"></div><div class="tabs"><span class="on" onclick="switchTab('eps',this)">Episodes</span><span onclick="switchTab('more',this)">More Like This</span><span onclick="switchTab('trail',this)">Trailers & More</span><span onclick="switchTab('about',this)">Details</span></div><div id="tab-eps"></div><div id="tab-more" style="display:none"></div><div id="tab-trail" style="display:none"><div id="trailerWrap" style="display:none"></div><button class="btn btn-play" onclick="playCurrent()">▶ Watch Trailer</button></div><div id="tab-about" style="display:none;color:#aaa;font-size:14px;line-height:2"></div></div></div></div>
+<div id="player"><div id="playerBar"><button class="iconBtn" onclick="closePlayer()">← Back</button><b id="playerTitle"></b><span style="color:#888;font-size:13px">Trailer • No full streaming</span></div><iframe id="playerFrame" allow="autoplay; encrypted-media" allowfullscreen></iframe></div>
+<div id="toast"></div>
 <script>
-const TMDB_KEY = ""; // <-- optional: paste free TMDB v3 key for movies + posters
-const TMDB_IMG = "https://image.tmdb.org/t/p/w500";
-let HERO_LIST = [], ALL_CACHE = [], currentFilter="all", currentItem=null, myCache={};
-
-const $ = id => document.getElementById(id);
-window.addEventListener('scroll',()=>{ $('nav').classList.toggle('scrolled', scrollY>20) });
-document.addEventListener('keydown',e=>{ if(e.key==='/'){e.preventDefault();$('q').focus()} if(e.key==='Escape')closeModal() });
-
-function ytSearchEmbed(title){ return `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(title+" official trailer")}`; }
-function getMyList(){ try{return JSON.parse(localStorage.getItem('novaflix-list')||'[]')}catch{return[]} }
-function inMyList(id){ return getMyList().some(x=>x.id===id) }
-
-async function init(){ loadHome(); }
+const TMDB_KEY="";
+const TMDB_IMG="https://image.tmdb.org/t/p/w500";
+const $=id=>document.getElementById(id);
+let DB={},HERO=[],BILL_I=0,currentItem=null,currentFilter="all",previewTimer=null,curPid="guest";
+const esc=s=>String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function toast(m){const t=$("toast");t.textContent=m;t.style.display="block";setTimeout(()=>t.style.display="none",1800)}
+function ytSearch(t){return "https://www.youtube.com/embed?listType=search&list="+encodeURIComponent(t+" official trailer")}
+function profs(){try{return JSON.parse(localStorage.getItem("novaflix-profiles-v2")||"[]")}catch{return[]}}
+function saveProfs(p){localStorage.setItem("novaflix-profiles-v2",JSON.stringify(p))}
+function listKey(){return "novaflix-list-"+curPid}
+function contKey(){return "novaflix-cont-"+curPid}
+function remKey(){return "novaflix-rem-"+curPid}
+function getMyList(){try{return JSON.parse(localStorage.getItem(listKey())||"[]")}catch{return[]}}
+function getCont(){try{return JSON.parse(localStorage.getItem(contKey())||"[]")}catch{return[]}}
+function getRem(){try{return JSON.parse(localStorage.getItem(remKey())||"[]")}catch{return[]}}
+function inList(id){return getMyList().some(x=>x.id===id)}
+// GATE
+function renderGate(){
+let p=profs();
+if(!p.length){p=[{id:"you",name:"You",c:"#E50914",e:"😎"},{id:"anime",name:"Anime Only",c:"#7b00ff",e:"🍥"},{id:"kids",name:"Kids",c:"#00b2ff",e:"🧸"}];saveProfs(p)}
+$("gateGrid").innerHTML=p.map(x=>`<div class="prof" onclick="enterProfile('${x.id}')"><div class="av" style="background:${x.c}">${x.e}</div><p>${esc(x.name)}</p></div>`).join("");
+}
+function addProfile(){const n=prompt("Profile name?");if(!n)return;let p=profs();p.push({id:"p"+Date.now(),name:n.slice(0,12),c:"#"+Math.floor(Math.random()*16777215).toString(16),e:"🔥"});saveProfs(p);renderGate()}
+function enterProfile(id){curPid=id;let p=profs().find(x=>x.id===id);$("myAv").textContent=(p?p.name:"G").slice(0,1).toUpperCase();$("gate").style.display="none";$("app").style.display="block";loadHome()}
+function enterGuest(){curPid="guest";$("gate").style.display="none";$("app").style.display="block";loadHome()}
+function switchProfile(){$("app").style.display="none";$("gate").style.display="flex";renderGate();$("profDrop").classList.remove("show")}
+// NAV
+window.addEventListener("scroll",()=>$("nav").classList.toggle("scrolled",scrollY>30));
+document.addEventListener("keydown",e=>{if(e.key==="/"){e.preventDefault();goSearchFocus()}if(e.key==="Escape"){closeModal();closePlayer();hidePreview()}});
+function hideDrops(){$("bellDrop").classList.remove("show");$("profDrop").classList.remove("show")}
+function toggleBell(e){e.stopPropagation();$("profDrop").classList.remove("show");$("bellDrop").classList.toggle("show");renderBell()}
+function toggleProf(e){e.stopPropagation();$("bellDrop").classList.remove("show");let d=$("profDrop");d.classList.toggle("show");d.innerHTML=profs().map(p=>`<div class="dropItem" onclick="enterProfile('${p.id}')" style="cursor:pointer"><div class="avatar">${esc(p.name[0])}</div><div>${esc(p.name)}</div></div>`).join("")+`<div class="dropItem" onclick="switchProfile()" style="cursor:pointer">🔄 Switch Profiles</div>`}
+document.addEventListener("click",hideDrops);
+function renderBell(){let up=Object.values(DB).filter(x=>x.upcoming).slice(0,6);$("bellDrop").innerHTML=up.length?up.map(x=>`<div class="dropItem" onclick='openById("${x.id}")'><img src="${x.backdrop}"><div><b>${esc(x.title.slice(0,30))}</b><br><span style="color:#aaa;font-size:12px">${x.release} • Trailer ready</span></div></div>`).join(""):"<div style='padding:16px;color:#aaa'>No new drops</div>"}
+// DATA
+async function fetchAnimeTop(){try{const r=await fetch("https://api.jikan.moe/v4/top/anime?limit=20");return (await r.json()).data||[]}catch{return[]}}
+async function fetchAnimeUp(){try{const r=await fetch("https://api.jikan.moe/v4/seasons/upcoming?limit=15");return (await r.json()).data||[]}catch{return[]}}
+async function fetchShows(){try{const r=await fetch("https://api.tvmaze.com/shows?page=0");const j=await r.json();return j.slice(10,55)}catch{return[]}}
+async function fetchTMDB(p){if(!TMDB_KEY)return[];try{const r=await fetch("https://api.themoviedb.org/3"+p+"?api_key="+TMDB_KEY+"&language=en-US&page=1");return (await r.json()).results||[]}catch{return[]}}
+function matFor(a){if(a.rating&&a.rating.includes("R"))return "TV-MA";if(a.rating&&a.rating.includes("PG"))return "TV-14";return "TV-14"}
+function animeToItem(a,up=false){const t=a.title_english||a.title;const img=a.images?.jpg?.large_image_url;return{id:"mal-"+a.mal_id,kind:a.type==="Movie"?"movie":"anime",title:t,poster:img,backdrop:img,desc:a.synopsis||"No synopsis yet.",score:a.score||8.4,year:a.aired?.prop?.from?.year||2025,genres:(a.genres||[]).map(g=>g.name).slice(0,3),trailer:a.trailer?.youtube_id?"https://www.youtube.com/embed/"+a.trailer.youtube_id:ytSearch(t),release:a.aired?.from?a.aired.from.slice(0,10):"2026-04-01",upcoming:up||a.status==="Not yet aired",maturity:matFor(a),dur:a.duration||"24m",seasons:1}}
+function tvToItem(s){return{id:"tv-"+s.id,kind:"tv",title:s.name,poster:s.image?.original,backdrop:s.image?.original,desc:(s.summary||"").replace(/<[^>]+>/g,"").slice(0,400),score:s.rating?.average||8.1,year:s.premiered?s.premiered.slice(0,4):"2023",genres:s.genres||["Drama"],trailer:ytSearch(s.name),release:s.premiered||"2023-01-01",upcoming:false,maturity:s.rating?.average>8.4?"TV-MA":"TV-14",dur:(s.runtime||45)+"m",seasons:3,network:s.network?.name||s.webChannel?.name||"NOVA"}}
+function tmdbToItem(m,up=false){const isTV=!!m.first_air_date&&!m.title;return{id:"tmdb-"+m.id,kind:isTV?"tv":"movie",title:m.title||m.name,poster:m.poster_path?TMDB_IMG+m.poster_path:null,backdrop:m.backdrop_path?TMDB_IMG+m.backdrop_path.replace("w500","w1280"):null,desc:m.overview,score:m.vote_average||7.9,year:(m.release_date||m.first_air_date||"2025").slice(0,4),genres:[],trailer:null,tmdbId:m.id,tmdbType:isTV?"tv":"movie",release:m.release_date||m.first_air_date||"2025-12-01",upcoming:up||(m.release_date&&new Date(m.release_date)>new Date()),maturity:"PG-13",dur:"2h 10m",seasons:1}}
+// HOME
 async function loadHome(){
-  $('homeView').style.display='block'; $('searchView').style.display='none';
-  $('rows').innerHTML = `<div class="row"><h2>Loading...</h2><div class="rail">${'<div class="skeleton"></div>'.repeat(8)}</div></div>`.repeat(3);
-  const [topAnime, upcomingAnime, shows] = await Promise.all([fetchAnimeTop(), fetchAnimeUpcoming(), fetchShows("stranger")]);
-  let upcomingMovies=[], trendingMovies=[];
-  if(TMDB_KEY){ trendingMovies = await fetchTMDB('/trending/all/week'); upcomingMovies = await fetchTMDB('/movie/upcoming'); }
-  // build unified
-  const animeCards = topAnime.map(a=>animeToCard(a));
-  const upcomingCards = upcomingAnime.map(a=>animeToCard(a,true)).concat(upcomingMovies.map(m=>tmdbToCard(m,true)));
-  const showCards = shows.map(s=>tvToCard(s));
-  const movieCards = trendingMovies.map(m=>tmdbToCard(m));
-
-  HERO_LIST = [...animeCards.slice(0,5), ...showCards.slice(0,5), ...movieCards.slice(0,3)];
-  ALL_CACHE = [...animeCards, ...upcomingCards, ...showCards, ...movieCards];
-  renderHero(0); let hi=1; setInterval(()=>{ if(!$('homeView').offsetParent) return; renderHero(hi%HERO_LIST.length); hi++; }, 9000);
-
-  let html="";
-  html+=renderRow("Trending Now", [...animeCards.slice(0,10), ...showCards]);
-  html+=renderTop10("Top 10 This Week", HERO_LIST.slice(0,10));
-  html+=renderRow("Top Anime • Dub & Sub", animeCards);
-  html+=renderRow("Binge-Worthy Shows", showCards);
-  if(movieCards.length) html+=renderRow("Popular Movies", movieCards);
-  html+=renderRow("Coming Soon • Unreleased + Trailers 🍿", upcomingCards, true);
-  html+=renderRow("My List", getMyList(), true);
-  $('rows').innerHTML = html;
+showOnly("homeView");
+$("rows").innerHTML=`<div class="row"><h2>Loading...</h2><div class="rail">${"<div class='skel'></div>".repeat(6)}</div></div>`.repeat(2);
+const [ta,ua,sh]=await Promise.all([fetchAnimeTop(),fetchAnimeUp(),fetchShows()]);
+let trend=[],upm=[];
+if(TMDB_KEY){trend=await fetchTMDB("/trending/all/week");upm=await fetchTMDB("/movie/upcoming")}
+let anime=ta.map(a=>animeToItem(a));
+let upAnime=ua.map(a=>animeToItem(a,true));
+let shows=sh.map(s=>tvToItem(s));
+let movies=trend.map(m=>tmdbToItem(m));
+let upMovies=upm.map(m=>tmdbToItem(m,true));
+let all=[...anime,...shows,...movies];
+let ups=[...upAnime,...upMovies];
+all.forEach(x=>DB[x.id]=x);ups.forEach(x=>DB[x.id]=x);
+HERO=[...anime.slice(0,5),...shows.slice(0,5),...movies.slice(0,2)];
+if(!HERO.length)HERO=all.slice(0,8);
+BILL_I=0;renderBillboard();setInterval(()=>{if(!$("homeView").offsetParent)return;BILL_I=(BILL_I+1)%HERO.length;renderBillboard()},9000);
+let cont=getCont();cont.forEach(c=>{if(!DB[c.id])DB[c.id]=c});
+renderBell();
+let html="";
+html+=rowHTML("Continue Watching for "+esc(curPid),cont,true);
+html+=rowHTML("Trending Now",[...anime.slice(0,12),...shows.slice(0,8)]);
+html+=topHTML("Top 10 Shows & Anime Today",HERO.slice(0,10));
+html+=rowHTML("Top Anime • Sub & Dub",anime);
+html+=rowHTML("Binge-Worthy Shows",shows);
+if(movies.length)html+=rowHTML("Blockbuster Movies",movies);
+html+=rowHTML("Coming Soon • Unreleased + Trailers 🍿",ups);
+html+=rowHTML("My List",getMyList());
+html+=rowHTML("Because You Watched "+esc(HERO[0]?.title||"Anime"),[...all].reverse().slice(0,14));
+$("rows").innerHTML=html;
+renderBrowse([...anime,...shows]);
 }
-
-// --- FETCHERS ---
-async function fetchAnimeTop(){
-  try{ const r=await fetch('https://api.jikan.moe/v4/top/anime?limit=18'); const j=await r.json(); return j.data||[] }catch{return[]}
+function showOnly(v){["homeView","searchView","newView","listView","browseView"].forEach(id=>$(id).style.display=id===v?"block":"none");if(v==="homeView")$("homeView").style.display="block";document.querySelectorAll(".links span").forEach(s=>s.classList.remove("active"))}
+function goHome(){showOnly("homeView");$("l-home").classList.add("active");$("q").value=""}
+function renderBillboard(){const c=HERO[BILL_I];if(!c)return;$("billBg").style.backgroundImage=`url('${c.backdrop}')`;$("billTitle").textContent=c.title;$("billDesc").textContent=c.desc||"";$("billMeta").innerHTML=`<span class="match">${Math.round(c.score*10)}% Match</span><span>${c.year}</span><span class="mBox">HD</span><span>${c.dur} • ${c.kind.toUpperCase()}</span><span>${(c.genres||[]).slice(0,3).join(" • ")}</span>`;$("matBox").textContent=c.maturity;$("topText").textContent="#"+(BILL_I+1)+" in "+(c.kind==="anime"?"Anime":"Shows")+" Today";$("billDots").innerHTML=HERO.map((_,i)=>`<div class="dot ${i===BILL_I?"on":""}" onclick="BILL_I=${i};renderBillboard()"></div>`).join("")}
+function playBill(){if(HERO[BILL_I])openDetail(HERO[BILL_I],true)}
+function infoBill(){if(HERO[BILL_I])openDetail(HERO[BILL_I],false)}
+function rowHTML(title,items,isCont=false){if(!items.length)return "";items.forEach(c=>DB[c.id]=c);const cards=items.map(c=>{const pct=c.progress||0;return `<div class="card ${c.poster&&c.poster!==c.backdrop?"":""}" data-id="${c.id}"><img loading="lazy" src="${c.backdrop||c.poster}" onerror="this.src='https://picsum.photos/seed/${c.id}/500/280'">${c.upcoming?`<div class="badgeSoon">SOON</div><div class="soon">${c.release} • ▶ Trailer</div>`:""}${isCont&&pct?`<div class="progBg"></div><div class="prog" style="width:${pct}%"></div>`:""}</div>`}).join("");return `<div class="row"><div class="rowHead"><h2>${esc(title)}</h2><span class="exp">Explore All ›</span></div><div class="railWrap"><button class="arrow left" onclick="scrollRow(this,-1)">‹</button><div class="rail">${cards}</div><button class="arrow right" onclick="scrollRow(this,1)">›</button></div></div>`}
+function topHTML(title,items){items.forEach(c=>DB[c.id]=c);const cards=items.map((c,i)=>`<div class="topWrap" data-id="${c.id}"><div class="bigN">${i+1}</div><div class="card" style="flex:0 0 145px;height:210px"><img src="${c.poster||c.backdrop}"></div></div>`).join("");return `<div class="row"><div class="rowHead"><h2>${esc(title)}</h2></div><div class="railWrap"><button class="arrow left" onclick="scrollRow(this,-1)">‹</button><div class="rail">${cards}</div><button class="arrow right" onclick="scrollRow(this,1)">›</button></div></div>`}
+function scrollRow(btn,dir){const rail=btn.parentElement.querySelector(".rail");rail.scrollBy({left:dir*rail.clientWidth*.9,behavior:"smooth"})}
+// hover preview 1:1
+document.addEventListener("mouseover",e=>{const card=e.target.closest(".card,.topWrap");if(!card){return}const id=card.dataset.id;if(!id)return;clearTimeout(previewTimer);previewTimer=setTimeout(()=>showPreview(card,id),500)});
+document.addEventListener("scroll",hidePreview,true);
+function showPreview(el,id){const c=DB[id];if(!c)return;currentItem=c;const r=el.getBoundingClientRect();const pv=$("preview");pv.style.display="block";pv.style.left=Math.min(Math.max(r.left-40+scrollX,8),innerWidth-360)+"px";pv.style.top=(r.top+scrollY-30)+"px";pv.style.position="absolute";$("pImg").src=c.backdrop||c.poster;$("pMeta").innerHTML=`<span class="match">${Math.round(c.score*10)}% Match</span> <span class="mBox">${c.maturity}</span> <span>${c.dur}</span>`;$("pGenres").textContent=(c.genres||[]).join(" • ");$("pList").textContent=inList(id)?"✓":"+"}
+function hidePreview(){$("preview").style.display="none";clearTimeout(previewTimer)}
+document.addEventListener("mouseout",e=>{if(e.target.closest("#preview")||e.target.closest(".card"))return;hidePreview()});
+$("preview").addEventListener("mouseleave",hidePreview);
+// views
+function renderBrowse(all){$("browseGrid").innerHTML=all.slice(0,18).map(c=>`<div class="card" style="height:142px" onclick='openById("${c.id}")'><img src="${c.backdrop||c.poster}"></div>`).join("")}
+function showTV(){goHome();setTimeout(()=>[...document.querySelectorAll(".row")].find(r=>r.textContent.includes("Binge"))?.scrollIntoView({behavior:"smooth"}),200)}
+function showMovies(){goHome();setTimeout(()=>[...document.querySelectorAll(".row")].find(r=>r.textContent.includes("Blockbuster")||r.textContent.includes("Trending"))?.scrollIntoView({behavior:"smooth"}),200)}
+function showBrowse(){showOnly("browseView")}
+function showNewView(){showOnly("newView");let ups=Object.values(DB).filter(x=>x.upcoming);if(!ups.length)ups=Object.values(DB).slice(0,8);$("newGrid").innerHTML=ups.map(c=>{const d=Math.ceil((new Date(c.release)-Date.now())/86400000);return `<div class="newCard"><img src="${c.backdrop||c.poster}"><div class="pad"><b>${esc(c.title)}</b><div style="color:#aaa;font-size:13px;margin:6px 0">${c.release} ${d>0?`• COMING IN ${d} DAYS`:""} • ${c.maturity}</div><div style="font-size:13px;color:#bbb">${esc((c.desc||"").slice(0,120))}...</div><div><button class="btn btn-play" style="padding:8px 18px;font-size:14px" onclick='openById("${c.id}")'>▶ Trailer</button> <button class="remBtn ${getRem().includes(c.id)?"on":""}" onclick="toggleRemindId('${c.id}',this)">${getRem().includes(c.id)?"✓ Reminded":"🔔 Remind Me"}</button></div></div></div>`}).join("")}
+function showListView(){showOnly("listView");let l=getMyList(),ct=getCont();$("listGrid").innerHTML=l.length?l.map(c=>`<div class="card" onclick='openById("${c.id}")'><img src="${c.backdrop||c.poster}"></div>`).join(""):"<p style='color:#888'>Empty. Add from any title → + My List.</p>";$("contGrid").innerHTML=ct.length?ct.map(c=>`<div class="card" onclick='openById("${c.id}")'><img src="${c.backdrop||c.poster}"><div class="progBg"></div><div class="prog" style="width:${c.progress||35}%"></div></div>`).join(""):"<p style='color:#888'>Play any trailer and it lands here.</p>"}
+// search
+let deb=null;function onSearch(v){clearTimeout(deb);if(!v.trim()){goHome();return}deb=setTimeout(()=>doSearch(v.trim()),350)}
+function goSearchFocus(){showOnly("searchView");$("q").focus()}
+async function doSearch(q){showOnly("searchView");$("searchTitle").textContent=`Results for "${q}"`;$("grid").innerHTML="<div class='skel'></div>".repeat(6);const [jk,tv]=await Promise.all([fetch(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(q)}&limit=10`).then(r=>r.json()).then(j=>j.data||[]).catch(()=>[]),fetch(`https://api.tvmaze.com/search/shows?q=${encodeURIComponent(q)}`).then(r=>r.json()).then(j=>j.map(x=>x.show)).catch(()=>[])]);let tm=[];if(TMDB_KEY){try{const r=await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_KEY}&query=${encodeURIComponent(q)}`);tm=(await r.json()).results||[]}catch{}}let merged=[...jk.map(a=>animeToItem(a)),...tv.map(s=>tvToItem(s)),...tm.map(m=>tmdbToItem(m))];if(currentFilter==="upcoming")merged=merged.filter(c=>c.upcoming);if(currentFilter!=="all"&&currentFilter!=="upcoming")merged=merged.filter(c=>c.kind===currentFilter);merged.forEach(c=>DB[c.id]=c);$("grid").innerHTML=merged.length?merged.map(c=>`<div class="card" onclick='openById("${c.id}")'><img src="${c.backdrop||c.poster}"><div class="soon"><b>${esc(c.title.slice(0,28))}</b><br>★ ${c.score} • ${c.year} ${c.upcoming?"• SOON":""}</div></div>`).join(""):"<p style='color:#888'>No results. Try anime name or show.</p>"}
+function setFilter(f,el){currentFilter=f;document.querySelectorAll("#pillBar .pill").forEach(p=>p.classList.remove("on"));el.classList.add("on");if($("q").value)doSearch($("q").value)}
+function openById(id){const c=DB[id];if(c)openDetail(c,false)}
+// modal
+function openDetail(c,auto){
+currentItem=c;hidePreview();$("modal").style.display="flex";document.body.style.overflow="hidden";
+$("mHero").style.backgroundImage=`url('${c.backdrop||c.poster}')`;$("mTitle").textContent=c.title;
+let days="";if(c.upcoming&&c.release!=="TBA"){const d=Math.ceil((new Date(c.release)-Date.now())/86400000);if(d>0)days=` • COMING IN ${d} DAYS`}
+$("mMeta").innerHTML=`<span class="match">${Math.round(c.score*10)}% Match</span><span>${c.year}</span><span class="mBox">${c.maturity}</span><span>${c.dur}</span><span class="mBox">HD</span><span>4K</span><span>${c.release}${days}</span>`;
+$("mDesc").textContent=c.desc||"";$("mCast").innerHTML=`<span style="color:#777">Genres:</span> ${esc((c.genres||[]).join(", ")||"Drama, Action")} &nbsp; <span style="color:#777">Type:</span> ${c.kind} ${c.network?" • "+esc(c.network):""}`;
+$("mListBtn").textContent=inList(c.id)?"✓":"+";$("mBell").textContent=getRem().includes(c.id)?"🔔✓":"🔔";
+$("trailerWrap").style.display="none";$("trailerWrap").innerHTML="";
+let eps="";for(let i=1;i<=5;i++){eps+=`<div class="ep"><div class="num">${i}</div><img src="${c.backdrop||c.poster}"><div><b>Episode ${i}: ${esc(c.title.slice(0,22))}</b><div style="color:#aaa;font-size:13px;margin-top:4px">${c.dur} • ${c.maturity}</div><div style="color:#bbb;font-size:13px;margin-top:6px">${esc((c.desc||"").slice(0,110))}...</div></div><div style="margin-left:auto;color:#fff;border:1px solid #666;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="playCurrent()">▶</div></div>`}
+$("tab-eps").innerHTML=c.kind==="movie"?`<p style="color:#aaa">${esc(c.title)} is a ${c.dur} film • ${c.release}</p>`:eps;
+let more=Object.values(DB).filter(x=>x.id!==c.id&&x.kind===c.kind).slice(0,6);
+$("tab-more").innerHTML=`<div class="simGrid">${more.map(x=>`<div class="sim" onclick='openById("${x.id}")'><img src="${x.backdrop||x.poster}"><div class="pad"><span class="match">${Math.round(x.score*10)}% Match</span> <span class="mBox">${x.maturity}</span><br><b>${esc(x.title.slice(0,28))}</b><br>${x.year} • ${x.dur}</div></div>`).join("")}</div>`;
+$("tab-about").innerHTML=`<b style="color:#fff">${esc(c.title)}</b><br>Release: ${c.release}<br>Maturity: ${c.maturity} • ${c.dur} • ${c.kind}<br>Genres: ${esc((c.genres||[]).join(", "))}<br>Score: ${c.score}/10<br>Cast: Ensemble cast • Created for catalog demo<br>${c.upcoming?"This title is unreleased. Trailer available.":"Trailer + catalog info available."}`;
+if(auto)playCurrent();
 }
-async function fetchAnimeUpcoming(){
-  try{ const r=await fetch('https://api.jikan.moe/v4/seasons/upcoming?limit=18'); const j=await r.json(); return j.data||[] }catch{return[]}
-}
-async function fetchShows(q){
-  try{ const r=await fetch(`https://api.tvmaze.com/search/shows?q=${encodeURIComponent(q||'breaking')}`); const j=await r.json(); return j.map(x=>x.show).slice(0,18) }catch{return[]}
-}
-async function fetchTMDB(path){
-  try{ const r=await fetch(`https://api.themoviedb.org/3${path}?api_key=${TMDB_KEY}&language=en-US&page=1`); const j=await r.json(); return j.results||[] }catch{return[]}
-}
-async function fetchTMDBVideos(id, type='movie'){
-  if(!TMDB_KEY) return null;
-  try{ const r=await fetch(`https://api.themoviedb.org/3/${type}/${id}/videos?api_key=${TMDB_KEY}`); const j=await r.json();
-    const v=(j.results||[]).find(v=>v.site==='YouTube'&&v.type==='Trailer')||(j.results||[])[0]; return v?`https://www.youtube.com/embed/${v.key}`:null }catch{return null}
-}
-
-// --- NORMALIZERS ---
-function animeToCard(a, isUp=false){
-  const title=a.title_english||a.title;
-  const img=a.images?.jpg?.large_image_url||a.images?.jpg?.image_url;
-  const yt=a.trailer?.youtube_id?`https://www.youtube.com/embed/${a.trailer.youtube_id}`:ytSearchEmbed(title);
-  const date=a.aired?.from?a.aired.from.slice(0,10):"TBA";
-  return {id:'mal-'+a.mal_id, kind:a.type==='Movie'?'movie':'anime', title, img, desc:a.synopsis||'No synopsis yet.', score:a.score||8.2, year:(a.aired?.prop?.from?.year||new Date().getFullYear()), genres:(a.genres||[]).map(g=>g.name), trailer:yt, release:date, upcoming:isUp||a.status==='Not yet aired', raw:a};
-}
-function tvToCard(s){
-  return {id:'tv-'+s.id, kind:'tv', title:s.name, img:s.image?.original||s.image?.medium, desc:(s.summary||'').replace(/<[^>]+>/g,''), score:s.rating?.average||8.0, year:s.premiered?s.premiered.slice(0,4):'2024', genres:s.genres||[], trailer:ytSearchEmbed(s.name), release:s.premiered||'TBA', upcoming:false, raw:s};
-}
-function tmdbToCard(m, isUp=false){
-  const isTV=!!m.first_air_date&&!m.title;
-  return {id:'tmdb-'+m.id, kind:isTV?'tv':'movie', title:m.title||m.name, img:m.poster_path?TMDB_IMG+m.poster_path:null, desc:m.overview, score:m.vote_average||7.8, year:(m.release_date||m.first_air_date||'2025').slice(0,4), genres:[], trailer:null, tmdbId:m.id, tmdbType:isTV?'tv':'movie', release:m.release_date||m.first_air_date||'TBA', upcoming:isUp||new Date(m.release_date)>new Date(), raw:m};
-}
-
-// --- RENDER ---
-function renderHero(i){
-  const c=HERO_LIST[i]; if(!c) return;
-  $('hero-bg').style.backgroundImage=`url('${c.img}')`;
-  $('hero-title').textContent=c.title;
-  $('hero-desc').textContent=c.desc||'';
-  $('hero-meta').innerHTML=`<span class="match">${Math.round(c.score*10)}% Match</span><span>${c.year}</span><span class="mat">HD</span><span class="mat">16+</span><span>${c.kind.toUpperCase()}</span>`;
-  $('hero-bg').dataset.idx=i;
-}
-function playHero(){ const c=HERO_LIST[$('hero-bg').dataset.idx||0]; if(c) openModal(c, true); }
-function infoHero(){ const c=HERO_LIST[$('hero-bg').dataset.idx||0]; if(c) openModal(c,false); }
-
-function renderRow(title, items, isWide=false){
-  if(!items.length) return '';
-  const cards=items.map((c,i)=>`<div class="card" onclick='openById("${c.id}")'><img loading="lazy" src="${c.img||'https://picsum.photos/seed/'+c.id+'/300/450'}" onerror="this.src='https://picsum.photos/seed/${c.id}/300/450'">${c.upcoming?`<div class="badge">SOON</div><div class="coming">${c.release} • ▶ Trailer</div>`:''}</div>`).join('');
-  items.forEach(c=>myCache[c.id]=c);
-  return `<div class="row"><h2>${title}</h2><div class="rail">${cards}</div></div>`;
-}
-function renderTop10(title, items){
-  items.forEach(c=>myCache[c.id]=c);
-  const cards=items.map((c,i)=>`<div class="top10-card" onclick='openById("${c.id}")'><div class="big-num">${i+1}</div><div class="card"><img loading="lazy" src="${c.img||'https://picsum.photos/seed/'+c.id+'/300/450'}"></div></div>`).join('');
-  return `<div class="row"><h2>${title} <span>TOP 10</span></h2><div class="rail">${cards}</div></div>`;
-}
-function openById(id){ const c=myCache[id]; if(c) openModal(c,false); }
-
-// --- SEARCH (every anime/show/movie) ---
-let deb=null;
-function onSearch(v){
-  clearTimeout(deb);
-  if(!v.trim()){ goHome(); return; }
-  deb=setTimeout(()=>doSearch(v.trim()), 400);
-}
-async function doSearch(q){
-  $('homeView').style.display='none'; $('searchView').style.display='block';
-  $('searchTitle').textContent=`Results for "${q}"`;
-  $('grid').innerHTML='<div class="skeleton"></div>'.repeat(10);
-  const [jikan, tv] = await Promise.all([
-    fetch(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(q)}&limit=12`).then(r=>r.json()).then(j=>j.data||[]).catch(()=>[]),
-    fetch(`https://api.tvmaze.com/search/shows?q=${encodeURIComponent(q)}`).then(r=>r.json()).then(j=>j.map(x=>x.show)).catch(()=>[])
-  ]);
-  let tmdb=[];
-  if(TMDB_KEY){ try{ const r=await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_KEY}&query=${encodeURIComponent(q)}`); tmdb=(await r.json()).results||[] }catch{} }
-  let merged=[...jikan.map(a=>animeToCard(a)), ...tv.map(s=>tvToCard(s)), ...tmdb.map(m=>tmdbToCard(m))];
-  // upcoming filter boost: also fetch upcoming anime matching
-  if(currentFilter==='upcoming') merged=merged.filter(c=>c.upcoming||c.title.toLowerCase().includes(q.toLowerCase()));
-  if(currentFilter!=='all'&&currentFilter!=='upcoming') merged=merged.filter(c=>c.kind===currentFilter);
-  merged.forEach(c=>myCache[c.id]=c);
-  ALL_CACHE=merged;
-  $('grid').innerHTML = merged.length? merged.map(c=>`<div class="card" style="flex:none;height:270px" onclick='openById("${c.id}")'><img src="${c.img||'https://picsum.photos/seed/'+c.id+'/300/450'}"><div class="coming">${c.title.slice(0,28)}<br>★ ${c.score} • ${c.year}</div></div>`).join('') : `<p style="color:#888">No results. Try anime name, show, or add TMDB key for movies.</p>`;
-}
-function setFilter(f){ currentFilter=f; document.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active',p.dataset.f===f)); const q=$('q').value; if(q) doSearch(q); }
-function goHome(){ $('q').value=''; $('homeView').style.display='block'; $('searchView').style.display='none'; }
-function filterHome(kind){ goHome(); document.querySelector('#rows').scrollIntoView({behavior:'smooth'}); }
-function showUpcoming(){ goHome(); setTimeout(()=>{ [...document.querySelectorAll('.row')].find(r=>r.textContent.includes('Coming Soon'))?.scrollIntoView({behavior:'smooth',block:'center'}) },300); }
-function showMyList(){
-  $('homeView').style.display='none'; $('searchView').style.display='block';
-  $('searchTitle').textContent='My List'; const l=getMyList(); l.forEach(c=>myCache[c.id]=c);
-  $('grid').innerHTML=l.length?l.map(c=>`<div class="card" style="flex:none;height:270px" onclick='openById("${c.id}")'><img src="${c.img}"></div>`).join(''):'<p style="color:#888">Empty. Hover any title → + My List.</p>';
-}
-
-// --- MODAL + TRAILERS ---
-async function openModal(c, autoplay=true){
-  currentItem=c;
-  $('modal').style.display='flex'; document.body.style.overflow='hidden';
-  $('modal-hero').style.backgroundImage=`url('${c.img}')`;
-  $('m-title').textContent=c.title;
-  let days=''; if(c.upcoming&&c.release!=='TBA'){ const d=Math.ceil((new Date(c.release)-new Date())/86400000); if(d>0) days=` • COMING IN ${d} DAYS`; }
-  $('m-meta').innerHTML=`<span class="match">${Math.round(c.score*10)}% Match</span><span>${c.year}</span><span class="mat">4K</span><span>${c.release}${days}</span><span>${(c.genres||[]).slice(0,3).join(' • ')}</span>`;
-  $('m-desc').textContent=c.desc||'';
-  $('m-cast').innerHTML=`<b>Genres:</b> ${(c.genres||[]).join(', ')||'Drama, Action'} &nbsp; <b>Type:</b> ${c.kind}`;
-  $('m-list').textContent=inMyList(c.id)?'✓':'+';
-  $('trailerWrap').style.display='none'; $('trailerWrap').innerHTML='';
-  // similars
-  $('m-sim').innerHTML=ALL_CACHE.filter(x=>x.id!==c.id&&x.kind===c.kind).slice(0,10).map(x=>`<div class="card" style="flex:0 0 130px;height:190px" onclick='openById("${x.id}")'><img src="${x.img}"></div>`).join('');
-  if(autoplay) playCurrent();
-}
-async function playCurrent(){
-  const c=currentItem; if(!c) return;
-  let url=c.trailer;
-  if(!url||c.tmdbId){ const tm=await fetchTMDBVideos(c.tmdbId||0, c.tmdbType||'movie'); if(tm) url=tm; if(!url) url=ytSearchEmbed(c.title); }
-  $('trailerWrap').style.display='block';
-  $('trailerWrap').innerHTML=`<iframe src="${url}?autoplay=1&rel=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-  $('trailerWrap').scrollIntoView({behavior:'smooth',block:'center'});
-}
-function closeModal(){ $('modal').style.display='none'; document.body.style.overflow='auto'; $('trailerWrap').innerHTML=''; }
-function toggleCurrent(){
-  let l=getMyList(); if(inMyList(currentItem.id)) l=l.filter(x=>x.id!==currentItem.id); else l.push(currentItem);
-  localStorage.setItem('novaflix-list', JSON.stringify(l)); $('m-list').textContent=inMyList(currentItem.id)?'✓':'+';
-}
-init();
+function switchTab(k,el){document.querySelectorAll(".tabs span").forEach(s=>s.classList.remove("on"));el.classList.add("on");["eps","more","trail","about"].forEach(t=>$("tab-"+t).style.display=t===k?"block":"none")}
+function closeModal(){$("modal").style.display="none";document.body.style.overflow="auto";$("trailerWrap").innerHTML=""}
+function openCurrent(){if(currentItem)openDetail(currentItem,false)}
+async function getTrailerUrl(c){if(c.tmdbId&&TMDB_KEY){try{const r=await fetch(`https://api.themoviedb.org/3/${c.tmdbType}/${c.tmdbId}/videos?api_key=${TMDB_KEY}`);const j=await r.json();const v=(j.results||[]).find(v=>v.site==="YouTube"&&v.type==="Trailer")||j.results[0];if(v)return "https://www.youtube.com/embed/"+v.key}catch{}}return c.trailer||ytSearch(c.title)}
+async function playCurrent(){const c=currentItem;if(!c)return;const url=await getTrailerUrl(c);markContinue(c);$("player").style.display="flex";$("playerTitle").textContent=c.title;$("playerFrame").src=url+"?autoplay=1&rel=0";if($("modal").style.display==="flex"){$("trailerWrap").style.display="block";$("trailerWrap").innerHTML=`<iframe src="${url}?autoplay=1&rel=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`}}
+function closePlayer(){$("player").style.display="none";$("playerFrame").src=""}
+function markContinue(c){let l=getCont();l=l.filter(x=>x.id!==c.id);c.progress=35+Math.floor(Math.random()*40);l.unshift(c);localStorage.setItem(contKey(),JSON.stringify(l.slice(0,12)))}
+function toggleCurrent(){if(!currentItem)return;let l=getMyList();if(inList(currentItem.id))l=l.filter(x=>x.id!==currentItem.id);else l.push(currentItem);localStorage.setItem(listKey(),JSON.stringify(l));$("mListBtn").textContent=inList(currentItem.id)?"✓":"+";$("pList").textContent=inList(currentItem.id)?"✓":"+";toast(inList(currentItem.id)?"Added to My List":"Removed from My List")}
+function likeCurrent(){toast("Rated 👍 — we’ll recommend more like this")}
+function toggleRemind(){if(!currentItem)return;toggleRemindId(currentItem.id,null)}
+function toggleRemindId(id,btn){let r=getRem();if(r.includes(id))r=r.filter(x=>x!==id);else r.push(id);localStorage.setItem(remKey(),JSON.stringify(r));if(btn){btn.textContent=r.includes(id)?"✓ Reminded":"🔔 Remind Me";btn.classList.toggle("on",r.includes(id))}if(currentItem&&currentItem.id===id)$("mBell").textContent=r.includes(id)?"🔔✓":"🔔";toast(r.includes(id)?"🔔 Reminder set":"Reminder removed")}
+renderGate();
 </script>
 </body>
 </html>
