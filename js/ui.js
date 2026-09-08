@@ -130,6 +130,7 @@ function ensureBillVideo() {
 }
 
 function showPreviewFor(el, c, inListFn) {
+  if (!el || !c) return;
   const pv = $('preview');
   pv.style.display = 'block';
   requestAnimationFrame(function () { pv.classList.add('show'); });
@@ -139,6 +140,17 @@ function showPreviewFor(el, c, inListFn) {
   pv.style.top = (r.top + window.scrollY - 40) + 'px';
   pv.dataset.id = c.id;
   $('pImg').src = c.backdrop || c.poster || '';
+  $('pImg').alt = c.title || 'Title preview';
+  let pp = pv.querySelector('.pvPlay');
+  if (!pp) {
+    pp = document.createElement('button');
+    pp.className = 'pvPlay';
+    pp.setAttribute('data-action', 'play-current');
+    pp.setAttribute('aria-label', 'Play trailer');
+    pp.textContent = '▶';
+    const media = pv.querySelector('.pvMedia');
+    if (media) media.appendChild(pp);
+  }
   $('pMeta').innerHTML = '<span class="match">' + matchPct(c) + ' Match</span> ' +
     '<span class="mBox">' + esc(c.maturity) + '</span> <span>' + esc(c.dur) + '</span>';
   $('pGenres').textContent = (c.genres || []).join(' • ') || c.year;

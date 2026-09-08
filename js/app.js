@@ -705,8 +705,8 @@ function bindEvents() {
     if (open) { openById(open.dataset.open); return; }
     const remind = q('[data-remind]');
     if (remind) { e.stopPropagation(); toggleRemindId(remind.dataset.remind); return; }
-    const card = q('#rows .card, #rows .topWrap, #rows .newCard, #grid .card, #listGrid .card, #browseGrid .card, #newGrid .newCard, #tab-more .sim');
-    if (card && card.dataset.id && !q('[data-remind]') && !q('button')) { openById(card.dataset.id); return; }
+    const card = q('#rows .card, #rows .newCard, #grid .card, #listGrid .card, #browseGrid .card, #newGrid .newCard, #tab-more .sim');
+    if (card && card.dataset.id && !q('[data-remind]')) { openById(card.dataset.id); return; }
 
     const bill = q('[data-bill]');
     if (bill) {
