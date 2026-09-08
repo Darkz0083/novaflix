@@ -265,6 +265,7 @@ async function loadAnimeHome(anime, myHome) {
   html += rowHTML('Anime Movies', anime.slice(0, 12));
   html += rowHTML('Coming Soon Anime 🍿', anime.filter(function (x) { return x.upcoming; }).slice(0, 10));
   if (getMyList().length) html += rowHTML('My List', getMyList().filter(function (x) { return x.kind === 'anime'; }));
+  if (!html) html = '<p class="emptyRow">Anime catalog failed to load — check your connection, then Settings ⚙️ → Save + Reload.</p>';
   if (staleHome(myHome)) return;
   paintRows(html);
   $('browseGrid').innerHTML = anime.slice(0, 18).map(gridCard).join('');
@@ -301,6 +302,7 @@ async function loadKidsHome(anime, myHome) {
   html += rowHTML('Kids Shows • Animation', kidS);
   html += rowHTML('Kid Anime • Safe', kidA);
   if (getMyList().length) html += rowHTML('My List', getMyList().filter(isKidSafeCard));
+  if (!html) html = '<p class="emptyRow">Kids catalog failed to load — check your connection, then Settings ⚙️ → Save + Reload.</p>';
   paintRows(html);
   $('browseGrid').innerHTML = kidM.concat(kidS).slice(0, 18).map(gridCard).join('');
 }
@@ -683,7 +685,7 @@ function renderBell() {
 
 /* ---------- global events (delegation) ---------- */
 function closestCard(el) {
-  return el.closest ? el.closest('.card,.topWrap,.newCard,.sim') : null;
+  return el.closest ? el.closest('.card,.topWrap,.newCard,.sim,#preview') : null;
 }
 
 function bindEvents() {
@@ -701,6 +703,8 @@ function bindEvents() {
     const prof = q('[data-profile]');
     if (prof) { enterProfile(prof.dataset.profile); return; }
 
+    const actFirst = q('[data-action]');
+    if (actFirst) { handleAction(actFirst.dataset.action, actFirst, e); return; }
     const open = q('[data-open]');
     if (open) { openById(open.dataset.open); return; }
     const remind = q('[data-remind]');
@@ -754,14 +758,13 @@ function bindEvents() {
       return;
     }
 
-    const act = q('[data-action]');
-    if (!act) return;
-    handleAction(act.dataset.action, act, e);
+    return;
   });
 
   document.addEventListener('mouseover', function (e) {
     const card = closestCard(e.target);
     if (!card || !card.dataset || !card.dataset.id) return;
+    if (typeof isVerticalCard === 'function' && isVerticalCard(card)) return;
     clearTimeout(previewTimer);
     clearTimeout(hideTimer);
     previewTimer = setTimeout(function () { showPreviewFor(card, DB[card.dataset.id], inList); }, 70);

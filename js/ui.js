@@ -54,6 +54,9 @@ function rowHTML(title, items, sub) {
     '<button class="arrow right" data-scroll="1" aria-label="Scroll right">›</button></div></div>';
 }
 
+function isVerticalCard(el) {
+  return !!(el && el.closest && el.closest('.topWrap'));
+}
 function topCard(c, i) {
   const img = c.poster || c.backdrop;
   return '<button class="card topCard" data-id="' + esc(c.id) + '" aria-label="#' + (i + 1) + ' ' + esc(c.title) + '">' +
