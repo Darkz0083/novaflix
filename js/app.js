@@ -129,7 +129,7 @@ function goHome() {
   $('q').value = '';
 }
 function paintBillboard() {
-  paintBillboard();
+  renderBillboard(HERO, BILL_I, billboardOn);
   syncBillListBtn();
   restartBillProgress();
 }
@@ -248,6 +248,13 @@ function staleHome(myHome) {
 }
 async function loadAnimeHome(anime, myHome) {
   if (staleHome(myHome)) return;
+  if (!anime.length) {
+    try {
+      const cs = await cinCat('series', 'top');
+      anime = cs.slice(0, 12).map(cinToItem).map(put);
+    } catch (e) { anime = []; }
+    if (staleHome(myHome)) return;
+  }
   HERO = anime.slice(0, 5);
   BILL_I = 0; billboardOn = false;
   paintBillboard();
@@ -269,6 +276,15 @@ async function loadKidsHome(anime, myHome) {
   if (staleHome(myHome)) return;
   try { kidS = (await fetchKidShows()).map(put); } catch (e) { kidS = []; }
   if (staleHome(myHome)) return;
+  if (!kidM.length && !kidS.length) {
+    try {
+      const cm = await cinCat('movie', 'top');
+      const cs = await cinCat('series', 'top');
+      kidM = cm.slice(0, 12).map(cinToItem).map(put);
+      kidS = cs.slice(0, 12).map(cinToItem).map(put);
+    } catch (e) { /* stay empty, message below */ }
+    if (staleHome(myHome)) return;
+  }
   const kidA = anime.filter(isKidSafeCard).slice(0, 14);
   HERO = kidM.slice(0, 2).concat(kidS.slice(0, 2), kidA.slice(0, 1)).filter(Boolean);
   if (!HERO.length) HERO = kidM.concat(kidS).slice(0, 5);
@@ -358,7 +374,7 @@ async function loadFullHome(anime, myHome) {
   html += rowHTML('Because You Watched ' + ((topM[0] && topM[0].title) || 'Trending'), uniq(popM.slice(5, 14).concat(popS.slice(3, 12))), 'Picked for you');
   html += rowHTML('Coming Soon • Remind Me 🍿', uniq(upM.slice(0, 12).concat(newS.slice(0, 6))), 'Set a reminder');
   if (getMyList().length) html += rowHTML('My List', uniq(getMyList().slice(0, 18)), 'Continue any time');
-  if (!html) html = '<p class="emptyRow">Catalog failed to load. Check the TMDB key in Settings ⚙️ — offline fallback coming right up.</p>';
+  if (!html) html = '<p class="emptyRow">Catalog failed to load — check your connection, then open Settings ⚙️ to verify the TMDB key and hit Save + Reload.</p>';
   paintRows(html);
   paintBrowse(topM.concat(topS));
 }
@@ -786,24 +802,28 @@ function handleAction(action, el, e) {
     case 'home': goHome(); return;
     case 'shows': {
       const pr = getCurrentProfile();
+      if (!Object.keys(DB).length) { toast('Loading catalog… one sec'); loadHome(); return; }
       goHome();
       setTimeout(function () {
         const rows = Array.from(document.querySelectorAll('.row'));
         const needle = pr.kind === 'anime' ? 'Anime Series' : pr.kind === 'kids' ? 'Kids Shows' : 'Top 10 TV';
         const found = rows.find(function (r) { return r.textContent.indexOf(needle) >= 0; });
         if (found) found.scrollIntoView({ behavior: 'smooth' });
-      }, 300);
+        else toast('Still loading — try again in a few seconds');
+      }, 600);
       return;
     }
     case 'movies': {
       const pr = getCurrentProfile();
+      if (!Object.keys(DB).length) { toast('Loading catalog… one sec'); loadHome(); return; }
       goHome();
       setTimeout(function () {
         const rows = Array.from(document.querySelectorAll('.row'));
         const needle = pr.kind === 'anime' ? 'Anime Movies' : pr.kind === 'kids' ? 'Kids Movies' : 'Top 10 Movies';
         const found = rows.find(function (r) { return r.textContent.indexOf(needle) >= 0; });
         if (found) found.scrollIntoView({ behavior: 'smooth' });
-      }, 300);
+        else toast('Still loading — try again in a few seconds');
+      }, 600);
       return;
     }
     case 'new': showNewView(); setActiveNav(el); return;
