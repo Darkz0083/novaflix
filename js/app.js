@@ -761,22 +761,27 @@ function bindEvents() {
     return;
   });
 
+  let hoverCard = null;
   document.addEventListener('mouseover', function (e) {
+    if (e.target && e.target.closest && e.target.closest('#preview')) return;
     const card = closestCard(e.target);
     if (!card || !card.dataset || !card.dataset.id) return;
     if (typeof isVerticalCard === 'function' && isVerticalCard(card)) return;
+    if (hoverCard === card) return;
+    hoverCard = card;
     clearTimeout(previewTimer);
     clearTimeout(hideTimer);
-    previewTimer = setTimeout(function () { showPreviewFor(card, DB[card.dataset.id], inList); }, 70);
+    previewTimer = setTimeout(function () { showPreviewFor(card, DB[card.dataset.id], inList); }, 250);
   });
   document.addEventListener('mouseout', function (e) {
     const to = e.relatedTarget;
     if (to && to.closest && (to.closest('#preview') || closestCard(to))) return;
+    hoverCard = null;
     clearTimeout(previewTimer);
     clearTimeout(hideTimer);
-    hideTimer = setTimeout(function () { hidePreview(false); }, 120);
+    hideTimer = setTimeout(function () { hidePreview(false); }, 300);
   });
-  document.addEventListener('scroll', function () { hidePreview(true); }, true);
+  document.addEventListener('scroll', function () { hoverCard = null; hidePreview(true); }, true);
 
   $('preview').addEventListener('mouseleave', function () { hidePreview(false); });
   $('preview').addEventListener('mouseenter', function () { clearTimeout(hideTimer); });

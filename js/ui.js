@@ -139,8 +139,15 @@ function showPreviewFor(el, c, inListFn) {
   requestAnimationFrame(function () { pv.classList.add('show'); });
   const r = el.getBoundingClientRect();
   pv.style.position = 'absolute';
-  pv.style.left = Math.min(Math.max(r.left - 40 + window.scrollX, 8), window.innerWidth - 360) + 'px';
-  pv.style.top = (r.top + window.scrollY - 40) + 'px';
+  const pw = 350;
+  const ph = 340;
+  let left = r.left + window.scrollX + (r.width / 2) - (pw / 2);
+  left = Math.min(Math.max(left, 8), Math.max(8, document.documentElement.scrollWidth - pw - 8));
+  let top = r.top + window.scrollY - 40;
+  const maxTop = window.scrollY + window.innerHeight - ph - 12;
+  if (top > maxTop) top = Math.max(window.scrollY + 12, maxTop);
+  pv.style.left = left + 'px';
+  pv.style.top = top + 'px';
   pv.dataset.id = c.id;
   $('pImg').src = c.backdrop || c.poster || '';
   $('pImg').alt = c.title || 'Title preview';
@@ -161,17 +168,18 @@ function showPreviewFor(el, c, inListFn) {
   $('pList').classList.toggle('in', !!inListFn(c.id));
 }
 
+let pvHideTimer = null;
 function hidePreview(force) {
   const pv = $('preview');
   pv.classList.remove('show');
+  clearTimeout(pvHideTimer);
   if (force) {
     pv.style.display = 'none';
   } else {
-    setTimeout(function () {
+    pvHideTimer = setTimeout(function () {
       if (!pv.classList.contains('show')) pv.style.display = 'none';
-    }, 220);
+    }, 300);
   }
-  clearTimeout(hidePreview._t);
 }
 
 function renderModal(full, inList) {
